@@ -4,7 +4,6 @@
 
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from chess.chess import Color
 from gameboard.gameboard import Gameboard, Coordinate
 
 class Type(Enum):
@@ -14,6 +13,10 @@ class Type(Enum):
     ROOK = 3
     QUEEN = 4
     KING = 5
+    
+class Color(Enum):
+        WHITE = True
+        BLACK = False
 
 class Abstract_Piece(metaclass = ABCMeta):
     """Chess Piece
@@ -22,6 +25,16 @@ class Abstract_Piece(metaclass = ABCMeta):
     type and two methods: valid_moves() and squares_attacked().
 
     """
+
+    @property
+    def color(self):
+        """chess.Color: Color of the piece."""
+        return self._color
+
+    @property
+    def type(self):
+        """Type: Type of the piece."""
+        return self._type
 
     def __init__(self, color, piece_type):
         """Return a new piece of the specified color and type.
@@ -36,16 +49,6 @@ class Abstract_Piece(metaclass = ABCMeta):
         super().__init__()
         self._color = color
         self._type = piece_type
-
-    @property
-    def color(self):
-        """chess.Color: Color of the piece."""
-        return self._color
-
-    @property
-    def type(self):
-        """Type: Type of the piece."""
-        return self._type
 
     @abstractmethod
     def valid_moves(self, board, position):
@@ -76,6 +79,11 @@ class Abstract_Piece(metaclass = ABCMeta):
 
         """
         raise NotImplementedError
+
+    def __str__(self):
+        t = _type_to_string(self._type)
+        t = t.upper() if self._color == Color.WHITE else t
+        return t
 
 
 class Pawn(Abstract_Piece):
@@ -148,3 +156,18 @@ class King(Abstract_Piece):
 
     def squares_attacked(self, board, position):
         raise NotImplementedError
+
+def _type_to_string(t):
+    if t == Type.PAWN:
+        return 'p'
+    elif t == Type.KNIGHT:
+        return 'n'
+    elif t == Type.BISHOP:
+        return 'b'
+    elif t == Type.ROOK:
+        return 'r'
+    elif t == Type.QUEEN:
+        return 'q'
+    elif t == Type.KING:
+        return 'k'
+    return ""
