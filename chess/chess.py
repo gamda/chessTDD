@@ -4,7 +4,7 @@
 
 from enum import Enum
 from gameboard.gameboard import Gameboard, Coordinate
-from chess.piece import Color, Pawn, Knight, Bishop, Rook, Queen, King
+from chess.piece import Color, Type, Pawn, Knight, Bishop, Rook, Queen, King
 
 class Chess:
     """Chess game logic"""
@@ -23,7 +23,28 @@ class Chess:
         for c, p in self._pieces.items():
             self._board.set_content(c,p)
 
+    def move(self, origin, destination):
+        """Perform the requested move and returns a Move_Type
+
+        Args:
+            origin (Coordinate): the square where the chip is currently
+            destination (Coordinate): the square where the chip will end
+        Returns:
+            Move_Type: Normal, Castle, or En_passant
+        Raises:
+            TypeError: if origin or destination is not Coordinate
+            
+        """
+        piece = self._pieces[origin]
+        self._board.move(origin, destination)
+        self._pieces[destination] = self._pieces[origin]
+        del self._pieces[origin]
+        if piece.type is Type.PAWN or piece.type is Type.KING:
+            piece.has_moved = True
+
     def reset(self):
+        """Restore pieces for a new game."""
+
         self._board = Gameboard()
         self._pieces = {}
         # Pawns

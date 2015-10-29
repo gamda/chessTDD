@@ -4,7 +4,7 @@
 
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from gameboard.gameboard import Gameboard, Coordinate
+from gameboard.gameboard import Gameboard, Coordinate, Direction
 
 class Type(Enum):
     PAWN = 0
@@ -13,7 +13,7 @@ class Type(Enum):
     ROOK = 3
     QUEEN = 4
     KING = 5
-    
+
 class Color(Enum):
         WHITE = True
         BLACK = False
@@ -59,7 +59,7 @@ class Abstract_Piece(metaclass = ABCMeta):
             position (gameboard.gameboard.Coordinate): piece's current position
 
         Returns:
-            List of gameboard.gameboard.Coordinate elements. The piece can
+            Set of gameboard.gameboard.Coordinate elements. The piece can
             move to any of these coordinates in the current gamestate.
 
         """
@@ -74,7 +74,7 @@ class Abstract_Piece(metaclass = ABCMeta):
             position (gameboard.gameboard.Coordinate): piece's current position
 
         Returns:
-            List of gameboard.gameboard.Coordinate elements. The piece is 
+            Set of gameboard.gameboard.Coordinate elements. The piece is 
             attacking all of these coordinates in the current gamestate.
 
         """
@@ -90,9 +90,20 @@ class Pawn(Abstract_Piece):
 
     def __init__(self, color):
         super().__init__(color, Type.PAWN)
+        self.has_moved = False
 
     def valid_moves(self, board, position):
-        raise NotImplementedError
+        direction = Direction.top \
+                    if self.color == Color.WHITE \
+                    else Direction.btm
+        moves = set()
+        first = board.neighbor_in_direction(position, direction)
+        if board.is_empty(first):
+            moves.add(first)
+            second = board.neighbor_in_direction(first, direction)
+            if board.is_empty(second) and not self.has_moved:
+                moves.add(second)
+        return moves
 
     def squares_attacked(self, board, position):
         raise NotImplementedError
@@ -150,6 +161,7 @@ class King(Abstract_Piece):
 
     def __init__(self, color):
         super().__init__(color, Type.KING)
+        self.has_moved = False
 
     def valid_moves(self, board, position):
         raise NotImplementedError
