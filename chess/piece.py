@@ -23,7 +23,7 @@ class Abstract_Piece(metaclass = ABCMeta):
 
     """
 
-    def __init__(self, color, type):
+    def __init__(self, color, piece_type):
         """Return a new piece of the specified color and type.
 
         Args:
@@ -35,7 +35,7 @@ class Abstract_Piece(metaclass = ABCMeta):
             raise ValueError("Use chess.Color values")
         super().__init__()
         self._color = color
-        self._type = Type.PAWN
+        self._type = piece_type
 
     @property
     def color(self):
@@ -82,6 +82,66 @@ class Pawn(Abstract_Piece):
 
     def __init__(self, color):
         super().__init__(color, Type.PAWN)
+
+    def valid_moves(self, board, position):
+        raise NotImplementedError
+
+    def squares_attacked(self, board, position):
+        raise NotImplementedError
+
+
+class Knight(Abstract_Piece):
+
+    def __init__(self, color):
+        super().__init__(color, Type.KNIGHT)
+
+    def valid_moves(self, board, position):
+        raise NotImplementedError
+
+    def squares_attacked(self, board, position):
+        raise NotImplementedError
+
+
+class Bishop(Abstract_Piece):
+
+    def __init__(self, color):
+        super().__init__(color, Type.BISHOP)
+
+    def valid_moves(self, board, position):
+        raise NotImplementedError
+
+    def squares_attacked(self, board, position):
+        raise NotImplementedError
+
+
+class Rook(Abstract_Piece):
+
+    def __init__(self, color):
+        super().__init__(color, Type.ROOK)
+
+    def valid_moves(self, board, position):
+        raise NotImplementedError
+
+    def squares_attacked(self, board, position):
+        raise NotImplementedError
+
+
+class Queen(Abstract_Piece):
+
+    def __init__(self, color):
+        super().__init__(color, Type.QUEEN)
+
+    def valid_moves(self, board, position):
+        raise NotImplementedError
+
+    def squares_attacked(self, board, position):
+        raise NotImplementedError
+
+
+class King(Abstract_Piece):
+
+    def __init__(self, color):
+        super().__init__(color, Type.KING)
 
     def valid_moves(self, board, position):
         raise NotImplementedError
