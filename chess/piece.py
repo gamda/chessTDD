@@ -5,6 +5,7 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from gameboard.gameboard import Gameboard, Coordinate, Direction
+from gameboard.gameboard import SHIFT_LETTER, SHIFT_SQUARE
 
 class Type(Enum):
     PAWN = 0
@@ -52,7 +53,7 @@ class Abstract_Piece(metaclass = ABCMeta):
 
     @abstractmethod
     def valid_moves(self, board, position):
-        """Return a list of coordinates where Piece can move.
+        """Return a set of coordinates where Piece can move.
 
         Args:
             board (gameboard.gameboard.Gameboard): board representing gamestate
@@ -67,7 +68,7 @@ class Abstract_Piece(metaclass = ABCMeta):
 
     @abstractmethod
     def squares_attacked(self, board, position):
-        """Return a list of coordinates that Piece is currently attacking.
+        """Return a set of coordinates that Piece is currently attacking.
 
         Args:
             board (gameboard.gameboard.Gameboard): board representing gamestate
@@ -92,19 +93,21 @@ class Pawn(Abstract_Piece):
         super().__init__(color, Type.PAWN)
         self.has_moved = False
 
-    def valid_moves(self, board, position):
+    def _moves_ahead(self, board, position):
         moves = set()
-        # straight ahead
         forward_direction = Direction.top \
-                            if self.color == Color.WHITE \
-                            else Direction.btm
+                            if self.color == Color.WHITE else \
+                            Direction.btm
         first = board.neighbor_in_direction(position, forward_direction)
         if board.is_empty(first):
             moves.add(first)
             second = board.neighbor_in_direction(first, forward_direction)
             if board.is_empty(second) and not self.has_moved:
                 moves.add(second)
-        # captures
+        return moves
+
+    def _captures(self, board, position):
+        moves = set()
         diagonal_directions = [Direction.top_right, Direction.top_left] \
                               if self.color == Color.WHITE else \
                               [Direction.btm_right, Direction.btm_left]
@@ -113,6 +116,38 @@ class Pawn(Abstract_Piece):
             if neighbor is not None and not board.is_empty(neighbor):
                 moves.add(neighbor)
         return moves
+
+    def _en_passant(self, board, position):
+        black = 3
+        white = 4
+        index = white if self.color == Color.WHITE else black
+        row = [Coordinate(x) for x in range(64) if x % 8 == index]
+        if position not in row:
+            return set()
+        last_move = board.moves[-1]
+        last_move_destination = last_move[-1]
+        last_piece = board.get_content(last_move_destination)
+        if last_piece.type is not Type.PAWN:
+            return set() 
+        if last_move_destination not in row:
+            return set() 
+        moves = set()
+        forward = Direction.top if self.color == Color.WHITE else Direction.btm
+        left = Coordinate(position - SHIFT_LETTER)
+        right = Coordinate(position + SHIFT_LETTER)
+        side_squares = [left, right]
+        for s in side_squares:
+            if last_move_destination == s:
+                empty = board.neighbor_in_direction(s, forward)
+                # empty won't be None because I checked row earlier
+                if board.is_empty(empty): 
+                    moves.add(empty)
+        return moves
+
+    def valid_moves(self, board, position):
+        return self._moves_ahead(board, position) \
+               | self._captures(board, position) \
+               | self._en_passant(board, position)
 
     def squares_attacked(self, board, position):
         raise NotImplementedError

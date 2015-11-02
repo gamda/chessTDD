@@ -17,18 +17,43 @@ class Chess:
     def pieces(self):
         return self._pieces
 
+    @property
+    def moves(self):
+        """List of tuples of the form (origin, destination), both Coordinate"""
+        return self._board.moves
+
+    @property
+    def last_move(self):
+        return self._board.moves[-1]
+
     def __init__(self):
         self.reset()
 
-        for c, p in self._pieces.items():
-            self._board.set_content(c,p)
+    def valid_moves_for_piece_at_coordinate(self, coordinate):
+        """Return a set of coordinates where Piece can move.
+
+        Args:
+            coordinate (gameboard.Coordinate): position to check for moves
+        Returns:
+            Set of gameboard.gameboard.Coordinate elements. The piece can
+            move to any of these coordinates in the current gamestate.
+        Raises:
+            TypeError: if coordinate is not Coordinate
+            
+        """
+        if not isinstance(coordinate, Coordinate):
+            raise TypeError("coordinate variable must be from Coordinate enum")
+        piece = self._pieces.get(coordinate)
+        return piece.valid_moves(self.board, coordinate) \
+               if piece is not None else \
+               set()
 
     def move(self, origin, destination):
         """Perform the requested move and returns a Move_Type
 
         Args:
-            origin (Coordinate): the square where the chip is currently
-            destination (Coordinate): the square where the chip will end
+            origin (Coordinate): the square where the piece is currently
+            destination (Coordinate): the square where the piece will end
         Returns:
             Move_Type: Normal, Castle, or En_passant
         Raises:
