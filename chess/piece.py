@@ -28,7 +28,7 @@ class Abstract_Piece(metaclass = ABCMeta):
 
     @property
     def color(self):
-        """chess.Color: Color of the piece."""
+        """Color: Color of the piece."""
         return self._color
 
     @property
@@ -45,7 +45,7 @@ class Abstract_Piece(metaclass = ABCMeta):
 
         """
         if not isinstance(color, Color):
-            raise ValueError("Use chess.Color values")
+            raise ValueError("Use piece.Color values")
         super().__init__()
         self._color = color
         self._type = piece_type
@@ -93,16 +93,25 @@ class Pawn(Abstract_Piece):
         self.has_moved = False
 
     def valid_moves(self, board, position):
-        direction = Direction.top \
-                    if self.color == Color.WHITE \
-                    else Direction.btm
         moves = set()
-        first = board.neighbor_in_direction(position, direction)
+        # straight ahead
+        forward_direction = Direction.top \
+                            if self.color == Color.WHITE \
+                            else Direction.btm
+        first = board.neighbor_in_direction(position, forward_direction)
         if board.is_empty(first):
             moves.add(first)
-            second = board.neighbor_in_direction(first, direction)
+            second = board.neighbor_in_direction(first, forward_direction)
             if board.is_empty(second) and not self.has_moved:
                 moves.add(second)
+        # captures
+        diagonal_directions = [Direction.top_right, Direction.top_left] \
+                              if self.color == Color.WHITE else \
+                              [Direction.btm_right, Direction.btm_left]
+        for direction in diagonal_directions:
+            neighbor = board.neighbor_in_direction(position, direction)
+            if neighbor is not None and not board.is_empty(neighbor):
+                moves.add(neighbor)
         return moves
 
     def squares_attacked(self, board, position):

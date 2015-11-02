@@ -95,10 +95,33 @@ class TestChess(unittest.TestCase):
         answer = set([Coordinate.a6])
         self.assertEqual(moves, answer)
 
+    def test_pawn_valid_moves_capture(self):
+        # white one capture available
+        self.chess.move(Coordinate.e2, Coordinate.e4)
+        self.chess.move(Coordinate.f7, Coordinate.f5)
+        moves = self.chess.pieces[Coordinate.e4].valid_moves(self.chess.board, 
+                                                             Coordinate.e4)
+        answer = set([Coordinate.e5, Coordinate.f5])
+        self.assertEqual(moves, answer)
+        # black one capture available
+        moves = self.chess.pieces[Coordinate.f5].valid_moves(self.chess.board, 
+                                                             Coordinate.f5)
+        answer = set([Coordinate.e4, Coordinate.f4])
+        self.assertEqual(moves, answer)
+        # black two captures available
+        self.chess.move(Coordinate.g2, Coordinate.g4)
+        moves = self.chess.pieces[Coordinate.f5].valid_moves(self.chess.board, 
+                                                             Coordinate.f5)
+        answer = set([Coordinate.e4, Coordinate.f4, Coordinate.g4])
+        self.assertEqual(moves, answer)
+        # white two captures available
+        self.chess.move(Coordinate.d7, Coordinate.d5)
+        moves = self.chess.pieces[Coordinate.e4].valid_moves(self.chess.board, 
+                                                             Coordinate.e4)
+        answer = set([Coordinate.d5, Coordinate.e5, Coordinate.f5])
+        self.assertEqual(moves, answer)
+
         self._print()
-
-
-
 
 
 
