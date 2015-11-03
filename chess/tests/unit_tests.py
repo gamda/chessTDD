@@ -147,6 +147,19 @@ class TestChess(unittest.TestCase):
         self.chess.move(Coordinate.d2, Coordinate.d4)
         moves = self.chess.valid_moves_for_piece_at_coordinate(Coordinate.e4)
         answer = set([Coordinate.d3, Coordinate.e3])
+        self.assertEqual(moves, answer)
+
+    def test_pawn_squares_attacked(self):
+        # center
+        pos = Coordinate.e2
+        attacked = self.chess.squares_attacked_by_piece_at_coordinate(pos)
+        answer = set([Coordinate.d3, Coordinate.f3])
+        self.assertEqual(attacked, answer)
+        # edge
+        pos = Coordinate.a2
+        attacked = self.chess.squares_attacked_by_piece_at_coordinate(pos)
+        answer = set([Coordinate.b3])
+        self.assertEqual(attacked, answer)
 
         self._print()
 

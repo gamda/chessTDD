@@ -36,7 +36,8 @@ class Chess:
             coordinate (gameboard.Coordinate): position to check for moves
         Returns:
             Set of gameboard.gameboard.Coordinate elements. The piece can
-            move to any of these coordinates in the current gamestate.
+            move to any of these coordinates in the current gamestate. Returns
+            empty set if there is no piece in the given coordinate.
         Raises:
             TypeError: if coordinate is not Coordinate
             
@@ -45,6 +46,26 @@ class Chess:
             raise TypeError("coordinate variable must be from Coordinate enum")
         piece = self._pieces.get(coordinate)
         return piece.valid_moves(self.board, coordinate) \
+               if piece is not None else \
+               set()
+
+    def squares_attacked_by_piece_at_coordinate(self, coordinate):
+        """Return a set of coordinates which Piece is attacking.
+
+        Args:
+            coordinate (gameboard.Coordinate): position to check for piece
+        Returns:
+            Set of gameboard.gameboard.Coordinate elements. The piece is
+            attacking all of these in the current gamestate. Returns empty set 
+            if there is no piece in the given coordinate.
+        Raises:
+            TypeError: if coordinate is not Coordinate
+            
+        """
+        if not isinstance(coordinate, Coordinate):
+            raise TypeError("coordinate variable must be from Coordinate enum")
+        piece = self._pieces.get(coordinate)
+        return piece.squares_attacked(self.board, coordinate) \
                if piece is not None else \
                set()
 

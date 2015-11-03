@@ -93,6 +93,17 @@ class Pawn(Abstract_Piece):
         super().__init__(color, Type.PAWN)
         self.has_moved = False
 
+    def _diagonal_neighbors(self, board, position):
+        neighbors = set()
+        diagonal_directions = [Direction.top_right, Direction.top_left] \
+                              if self.color == Color.WHITE else \
+                              [Direction.btm_right, Direction.btm_left]
+        for direction in diagonal_directions:
+            neighbor = board.neighbor_in_direction(position, direction)
+            if neighbor is not None:
+                neighbors.add(neighbor)
+        return neighbors
+
     def _moves_ahead(self, board, position):
         moves = set()
         forward_direction = Direction.top \
@@ -108,13 +119,11 @@ class Pawn(Abstract_Piece):
 
     def _captures(self, board, position):
         moves = set()
-        diagonal_directions = [Direction.top_right, Direction.top_left] \
-                              if self.color == Color.WHITE else \
-                              [Direction.btm_right, Direction.btm_left]
-        for direction in diagonal_directions:
-            neighbor = board.neighbor_in_direction(position, direction)
-            if neighbor is not None and not board.is_empty(neighbor):
-                moves.add(neighbor)
+        for neighbor in self._diagonal_neighbors(board, position):
+            if not board.is_empty(neighbor):
+                piece = board.get_content(neighbor)
+                if piece.color is not self.color:
+                    moves.add(neighbor)
         return moves
 
     def _en_passant(self, board, position):
@@ -150,7 +159,13 @@ class Pawn(Abstract_Piece):
                | self._en_passant(board, position)
 
     def squares_attacked(self, board, position):
-        raise NotImplementedError
+        diagonal_directions = [Direction.top_right, Direction.top_left] \
+                              if self.color == Color.WHITE else \
+                              [Direction.btm_right, Direction.btm_left]
+        attacked = set()
+        for neighbor in self._diagonal_neighbors(board, position):
+            attacked.add(neighbor)
+        return attacked
 
 
 class Knight(Abstract_Piece):
