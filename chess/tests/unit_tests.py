@@ -161,6 +161,49 @@ class TestChess(unittest.TestCase):
         answer = set([Coordinate.b3])
         self.assertEqual(attacked, answer)
 
+    def test_knight_valid_moves(self):
+        # white edge
+        moves = self.chess.valid_moves_for_piece_at_coordinate(Coordinate.b1)
+        answer = set([Coordinate.a3, Coordinate.c3])
+        self.assertEqual(moves, answer)
+        # black edge
+        moves = self.chess.valid_moves_for_piece_at_coordinate(Coordinate.b8)
+        answer = set([Coordinate.a6, Coordinate.c6])
+        self.assertEqual(moves, answer)
+        # white center
+        self.chess.move(Coordinate.b1, Coordinate.c3)
+        moves = self.chess.valid_moves_for_piece_at_coordinate(Coordinate.c3)
+        answer = set([Coordinate.b5, Coordinate.d5, # top
+                      Coordinate.b1, # btm
+                      Coordinate.a4, # left
+                      Coordinate.e4]) # right
+        self.assertEqual(moves, answer)
+        # black center
+        self.chess.move(Coordinate.b8, Coordinate.c6)
+        self._print()   
+        moves = self.chess.valid_moves_for_piece_at_coordinate(Coordinate.c6)
+        answer = set([Coordinate.b8, # top
+                      Coordinate.b4, Coordinate.d4, # btm
+                      Coordinate.a5, # left
+                      Coordinate.e5]) # right
+        self.assertEqual(moves, answer)
+
+    def test_knight_squares_attacked(self):
+        # white edge
+        pos = Coordinate.b1
+        attacked = self.chess.squares_attacked_by_piece_at_coordinate(pos)
+        answer = set([Coordinate.a3, Coordinate.c3, Coordinate.d2])
+        self.assertEqual(attacked, answer)
+        # white center
+        self.chess.move(Coordinate.b1, Coordinate.c3)
+        pos = Coordinate.c3
+        attacked = self.chess.squares_attacked_by_piece_at_coordinate(pos)
+        answer = set([Coordinate.b5, Coordinate.d5, # top
+                      Coordinate.e2, Coordinate.e4, # right
+                      Coordinate.b1, Coordinate.d1, # btm
+                      Coordinate.a2, Coordinate.a4]) # left
+        self.assertEqual(attacked, answer)
+
         self._print()
 
 

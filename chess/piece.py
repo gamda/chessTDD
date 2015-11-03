@@ -173,11 +173,39 @@ class Knight(Abstract_Piece):
     def __init__(self, color):
         super().__init__(color, Type.KNIGHT)
 
+    def _squares_attacked_not_out_of_bounds(self, board, position):
+        squares = set()
+        # top and bottom
+        for d in [Direction.top, Direction.btm]:
+            step = board.neighbor_in_direction(position, d)
+            end = board.neighbor_in_direction(step, d) \
+                  if step is not None else None
+            if end is not None:
+                left = board.neighbor_in_direction(end, Direction.left)
+                if left is not None: squares.add(left)
+                right = board.neighbor_in_direction(end, Direction.right)
+                if right is not None: squares.add(right)
+        # left and right
+        for d in [Direction.left, Direction.right]:
+            step = board.neighbor_in_direction(position, d)
+            end = board.neighbor_in_direction(step, d) \
+                  if step is not None else None
+            if end is not None:
+                top = board.neighbor_in_direction(end, Direction.top)
+                if top is not None: squares.add(top)
+                btm = board.neighbor_in_direction(end, Direction.btm)
+                if btm is not None: squares.add(btm)
+        return squares
+
     def valid_moves(self, board, position):
-        raise NotImplementedError
+        moves = self._squares_attacked_not_out_of_bounds(board, position)
+        moves = {x for x in moves 
+                    if board.is_empty(x) or \
+                       board.get_content(x).color is not self.color}
+        return moves
 
     def squares_attacked(self, board, position):
-        raise NotImplementedError
+        return self._squares_attacked_not_out_of_bounds(board, position)
 
 
 class Bishop(Abstract_Piece):
