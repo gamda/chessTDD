@@ -133,8 +133,7 @@ class Pawn(Abstract_Piece):
         row = [Coordinate(x) for x in range(64) if x % 8 == index]
         if position not in row:
             return set()
-        last_move = board.moves[-1]
-        last_move_destination = last_move[-1]
+        _, last_move_destination = board.moves[-1]
         last_piece = board.get_content(last_move_destination)
         if last_piece.type is not Type.PAWN:
             return set() 
@@ -159,9 +158,6 @@ class Pawn(Abstract_Piece):
                | self._en_passant(board, position)
 
     def squares_attacked(self, board, position):
-        diagonal_directions = [Direction.top_right, Direction.top_left] \
-                              if self.color == Color.WHITE else \
-                              [Direction.btm_right, Direction.btm_left]
         attacked = set()
         for neighbor in self._diagonal_neighbors(board, position):
             attacked.add(neighbor)
@@ -210,11 +206,28 @@ class Knight(Abstract_Piece):
 
 class Bishop(Abstract_Piece):
 
+    _directions = [Direction.top_right, Direction.btm_right,
+                   Direction.btm_left, Direction.top_left]
+
     def __init__(self, color):
         super().__init__(color, Type.BISHOP)
 
     def valid_moves(self, board, position):
-        raise NotImplementedError
+        moves = set()
+        for d in self._directions:
+            # set comprehension
+            squares = {x for x in board.squares_in_direction(position, d, True) 
+                             if board.is_empty(x) or \
+                                board.get_content(x).color is not self.color}
+            # manually check last position
+            # squares = board.squares_in_direction(position, d, True)
+            # last = squares[-1] if len(squares) > 0 else None
+            # if last is not None and \
+            #         not board.is_empty(last) and \
+            #         board.get_content(last).color is self.color:
+            #     squares = set(squares[:-1])
+            moves = moves | set(squares)
+        return moves
 
     def squares_attacked(self, board, position):
         raise NotImplementedError
